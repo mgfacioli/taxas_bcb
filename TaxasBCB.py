@@ -12,7 +12,6 @@ Created on Fri Oct  8 14:12:23 2021
 
 ##############################################################################
 # importando modulos
-import yfinance as yf
 import pandas as pd
 import matplotlib.pyplot as plt
 
