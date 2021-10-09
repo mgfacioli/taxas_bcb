@@ -4,6 +4,9 @@
 Created on Fri Oct  8 14:12:23 2021
 
 @author: mgfacioli
+
+@purpose: projeto de captura e processamento de informacoes do banco central do brasil - taxas e indices
+
 """
 
 
