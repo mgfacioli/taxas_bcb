@@ -8,3 +8,7 @@ informacoes a partir dos mesmos.
 
 09.10.2021
 -criado repostitorio no github
+
+10.10.2021
+-modulo TaxasBCB transformado em uma classe
+-criado modulo teste separado do modulo TaxasBCB
