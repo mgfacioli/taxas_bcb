@@ -23,55 +23,40 @@ __version__ = "0.0.1"
 
 class TaxasBcb(object):
     def __init__(self, url = 'http://api.bcb.gov.br/dados/serie/bcdata.sgs.{}/dados?formato=json', codigo = 11):
-            self._url = url.format(codigo)
-            self._codigo = str(codigo)
-            self.__data_inicio = None
-            self.__data_fim = None
-            self.__subtaxa = None
-            self.__acumular = None
+            self.url = url.format(codigo)
+            self.codigo = str(codigo)
+            self.taxa = pd.read_json(self.url)
+            self.taxa['data'] = pd.to_datetime(self.taxa['data'], dayfirst=True)
+            self.taxa.set_index('data', inplace=True)
+            self.taxa_acumulada = 0
 
-
-    def __indice_acumulado(self, taxa):
-        taxa['indice'] = ((taxa.iloc[:] / 100) + 1)
-        taxa['indice_acc'] = taxa['indice'].cumprod()
-        return taxa
-                
-        
-    def retorna_taxa(self,  data_inicio=None, data_fim=None, acumular = True):
-        try:
-            self.__data_inicio = data_inicio
-            self.__data_fim = data_fim
-            self.__acumular = acumular
-            taxa = pd.read_json(self._url)
-            taxa['data'] = pd.to_datetime(taxa['data'], dayfirst=True)
-            taxa.set_index('data', inplace=True)
-            
+    
+    def get_subperiodo(self,  data_inicio=None, data_fim=None, acc = False):
+        try:       
             if data_fim == None:
-                if self.__data_inicio == None:
-                    self.__subtaxa = taxa[taxa.index[0]:taxa.index[-1]]
+                if data_inicio == None:
+                    subper = self.taxa[self.taxa.index[0]:self.taxa.index[-1]]
                 else:
-                    self.__subtaxa = taxa[pd.to_datetime(self.__data_inicio):taxa.index[-1]]
+                    subper = self.taxa[pd.to_datetime(data_inicio):self.taxa.index[-1]]
             else:
-                if self.__data_inicio == None:
-                    self.__subtaxa = taxa[taxa.index[0]:pd.to_datetime(self.__data_fim)]
+                if data_inicio == None:
+                    subper = self.taxa[self.taxa.index[0]:pd.to_datetime(data_fim)]
                 else:
-                    self.__subtaxa = taxa[pd.to_datetime(self.__data_inicio):pd.to_datetime(self.__data_fim)]
+                    subper = self.taxa[pd.to_datetime(data_inicio):pd.to_datetime(data_fim)]
             
-            if self.__acumular:
-                self.__subtaxa = TaxasBcb.__indice_acumulado(self, self.__subtaxa.copy())
+            if acc:
+                df = subper.copy()
+                df['indice'] = ((df.iloc[:] / 100) + 1)
+                df['indice_acc'] = df['indice'].cumprod()
+                self.taxa_acumulada = round(((df.iloc[-1][2])-1)*100, 4)
+                subper = df.copy()
             
-            return self.__subtaxa
+            return subper
             
         except ValueError as Verr:
             print("Data desconhecida: " + str(Verr))                
         except:
-            print(f"taxa {self._codigo} nao encontrado.")    
-  
-    def taxa_acumulada(self):
-        if self.__acumular:
-            return round(((self.__subtaxa.iloc[-1][2])-1)*100, 4)
-        else:
-            print('Para obter a taxa acumulada, o parametro acumular do metodo retorna_taxa deve ser True.')
-
-
+            print(f"taxa {self.codigo} nao encontrado.") 
+            
+        
    

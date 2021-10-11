@@ -12,3 +12,7 @@ informacoes a partir dos mesmos.
 10.10.2021
 -modulo TaxasBCB transformado em uma classe
 -criado modulo teste separado do modulo TaxasBCB
+
+11.10.2021
+-criado branch Revisao01
+-classe TaxaxBcb completamente redesenhada
