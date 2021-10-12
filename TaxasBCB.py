@@ -32,7 +32,8 @@ class TaxasBcb(object):
 
     
     def get_subperiodo(self,  data_inicio=None, data_fim=None, acc = False):
-        try:       
+        try:
+            self.taxa_acumulada = 0
             if data_fim == None:
                 if data_inicio == None:
                     subper = self.taxa[self.taxa.index[0]:self.taxa.index[-1]]

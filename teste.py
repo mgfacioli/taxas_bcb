@@ -28,8 +28,16 @@ def main():
 
 
     cdi2020 = cdi.get_subperiodo('2020-01-01', '2020-12-31', acc=True)
-    cdi.taxa_acumulada    
-   
+    cdi.taxa_acumulada
+
+    todoperiodo = cdi.get_subperiodo(acc=True)    
+    cdi.taxa_acumulada
+    
+    cdi1986 = cdi.get_subperiodo('1986-01-01', '1986-12-31', acc=True)
+    cdi.taxa_acumulada
+
+    cdi1987 = cdi.get_subperiodo('1987-01-01', '1987-12-31', acc=True)
+    cdi.taxa_acumulada
 
 if __name__ == '__main__':
     main()
