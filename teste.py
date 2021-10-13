@@ -16,28 +16,37 @@ from TaxasBCB import TaxasBcb
 # Entrada do progrma
 def main():
 
-    cdi = TaxasBcb()
+    cdi = TaxasBcb(codigo=11)
     cdi.codigo
     cdi.url
     cdi.taxa
-    cdi.taxa_acumulada
-    cdisub = cdi.get_subperiodo(data_inicio = '2021-01-01', data_fim= '2021-09-30')
-    cdi.taxa_acumulada
-    cdisubacc = cdi.get_subperiodo(data_inicio = '2021-01-01', data_fim= '2021-09-30', acc=True)
-    cdi.taxa_acumulada
-
-
-    cdi2020 = cdi.get_subperiodo('2020-01-01', '2020-12-31', acc=True)
-    cdi.taxa_acumulada
-
-    todoperiodo = cdi.get_subperiodo(acc=True)    
-    cdi.taxa_acumulada
     
-    cdi1986 = cdi.get_subperiodo('1986-01-01', '1986-12-31', acc=True)
-    cdi.taxa_acumulada
+    cdi2021 = cdi.get_subperiodo(data_inicio = '2021-01-01', data_fim= '2021-09-30', acc=True)
+    cdi2021.create_subper()
+    cdi2021.create_acc_subper()
+    cdi2021.get_acc_return_tax()
 
-    cdi1987 = cdi.get_subperiodo('1987-01-01', '1987-12-31', acc=True)
-    cdi.taxa_acumulada
+    cdi2020 = cdi.get_subperiodo(data_inicio = '2020-01-01', data_fim= '2020-12-31', acc=True)
+    cdi2020.create_subper()
+    cdi2020.create_acc_subper()
+    cdi2020.get_acc_return_tax()
+    
+    selic = TaxasBcb(codigo = 12)
+    selic.codigo
+
+    selic2020 = selic.get_subperiodo(data_inicio = '2020-01-01', data_fim= '2020-12-31', acc=True)
+    selic2020.create_subper()
+    selic2020.create_acc_subper()
+    selic2020.get_acc_return_tax()
+
+    ipca = TaxasBcb(codigo=433)
+    ipca.url
+
+    ipca2020 = ipca.get_subperiodo(data_inicio = '2020-01-01', data_fim= '2020-12-31', acc=True)
+    ipca2020.create_subper()
+    ipca2020.create_acc_subper()
+    ipca2020.get_acc_return_tax()
+
 
 if __name__ == '__main__':
     main()
