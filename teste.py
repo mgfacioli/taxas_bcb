@@ -25,6 +25,9 @@ def main():
     cdi2021.create_subper()
     cdi2021.create_acc_subper()
     cdi2021.get_acc_return_tax()
+    cdi2021.group_by_subper()
+    cdi2021.group_by_subper('Y')
+    
 
     cdi2020 = cdi.get_subperiodo(data_inicio = '2020-01-01', data_fim= '2020-12-31', acc=True)
     cdi2020.create_subper()
@@ -46,7 +49,8 @@ def main():
     ipca2020.create_subper()
     ipca2020.create_acc_subper()
     ipca2020.get_acc_return_tax()
-
+    ipca2020.group_by_subper()
+    ipca2020.group_by_subper('Y')
 
 if __name__ == '__main__':
     main()

@@ -71,3 +71,13 @@ class TaxasBcb(object):
 
         def get_acc_return_tax(self):
             return round(((self.create_acc_subper().iloc[-1][2])-1)*100, 4)
+        
+        
+        def group_by_subper(self, tipo_per = 'M'):
+            df = self.create_acc_subper().copy()
+            df = df.iloc[df.reset_index().groupby(df.index.to_period(tipo_per))['data'].idxmax()]
+            df['indice_periodo'] = (df['indice_acc'] / df['indice_acc'].shift(1))    
+            df['indice_periodo'][0] =  df['indice_acc'][0]
+            return df
+        
+        
