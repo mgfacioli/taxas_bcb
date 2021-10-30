@@ -16,3 +16,7 @@ informacoes a partir dos mesmos.
 11.10.2021
 -criado branch Revisao01
 -classe TaxaxBcb completamente redesenhada
+
+30.10.2021
+-refatoracao completa do modulo (nomes de variaveis, funcoes, classes, etc)
+-inclusao de documentacao inicial

@@ -5,79 +5,138 @@ Created on Fri Oct  8 14:12:23 2021
 
 @author: mgfacioli
 
-@purpose: projeto de captura e processamento de informacoes do banco central do brasil - taxas e indices
+@purpose: Brazil's central bank information capture and 
+            processing project - rates and indices 
 
 """
-
-
-##############################################################################
-# importando modulos
-import pandas as pd
 
 __author__ = """\n""".join(['Marcelo G Facioli (mgfacioli@yahoo.com.br)'])
 __version__ = "0.0.1"
 
 
 ##############################################################################
+# importando modulos
+import pandas as pd
+
+
+##############################################################################
 # definindo funcoes do projeto
 
-class TaxasBcb(object):
-    def __init__(self, url = 'http://api.bcb.gov.br/dados/serie/bcdata.sgs.{}/dados?formato=json', codigo = 11):
-            self.url = url.format(codigo)
-            self.codigo = str(codigo)         
+class BcbTables(object):
+    """
+    """
+    def __init__(self, 
+                 url = 'http://api.bcb.gov.br/dados/serie/bcdata.sgs.{}/dados?formato=json', 
+                 bcb_table_code = 11):
+            self.url = url.format(bcb_table_code)
+            self.bcb_table_code = str(bcb_table_code)         
             try:
-                self.taxa = pd.read_json(self.url)
-                self.taxa['data'] = pd.to_datetime(self.taxa['data'], dayfirst=True)
-                self.taxa.set_index('data', inplace=True)
+                self.table = pd.read_json(self.url)
+                self.table['data'] = pd.to_datetime(self.table['data'], dayfirst=True)
+                self.table.set_index('data', inplace=True)
             except:
-                print(f"taxa {self.codigo} nao encontrado.") 
+                print(f"Table code {self.bcb_table_code} not found.") 
                 
-    def get_subperiodo(self, data_inicio=None, data_fim=None, acc = False):
-        return self.SubPeriodo(self, data_inicio, data_fim, acc)
+    def get_subperiod(self, begin_date=None, end_date=None, acc = False):
+        '''
+        Parameters
+        ----------
+        begin_date : date, optional
+            DESCRIPTION. Start date of the desired subperiod. 
+                         The default is None.
+        end_date : date, optional
+            DESCRIPTION. End date of the desired subperiod.
+                         The default is None.
+        acc : boolean, optional
+            DESCRIPTION. Defines whether or not the subperiod can be accumulated. 
+                         The default is False.
+
+        Returns
+        -------
+        Pandas list
+            DESCRIPTION. Create an object with a selected subperiod
+
+        '''
+        return self.SubPeriod(self, begin_date, end_date, acc)
 
     
-    class SubPeriodo(object):
-        def __init__(self, outer, data_inicio=None, data_fim=None, acc = False):
+    class SubPeriod(object):
+        def __init__(self, outer, begin_date=None, 
+                     end_date=None, acc = False):
             self.outerClass = outer
-            self.data_inicio = pd.to_datetime(data_inicio)
-            self.data_fim = pd.to_datetime(data_fim)
+            self.begin_date = pd.to_datetime(begin_date)
+            self.end_date = pd.to_datetime(end_date)
             self.acc = acc
-            self.__taxa_acumulada = 0
+            self.__accumulated_rate = 0
 
         def create_subper(self):
+            '''
+            Returns
+            -------
+            subper : Pandas DataFrame
+                DESCRIPTION. Returns a DataFrame containing the daily 
+                             values for the selected BCB code.
+            '''
             try:
-                if self.data_fim == None:
-                    if self.data_inicio == None:
-                        subper = self.outerClass.taxa[self.taxa.index[0]:self.taxa.index[-1]]
+                if self.end_date == None:
+                    if self.begin_date == None:
+                        subper = self.outerClass.table[self.outerClass.table.index[0]:self.outerClass.table.index[-1]]
                     else:
-                        subper = self.outerClass.taxa[self.data_inicio:self.taxa.index[-1]]
+                        subper = self.outerClass.table[self.begin_date:self.outerClass.table.index[-1]]
                 else:
-                    if self.data_inicio == None:
-                        subper = self.outerClass.taxa[self.taxa.index[0]:self.data_fim]
+                    if self.begin_date == None:
+                        subper = self.outerClass.table[self.outerClass.table.index[0]:self.end_date]
                     else:
-                        subper = self.outerClass.taxa[self.data_inicio:self.data_fim]
+                        subper = self.outerClass.table[self.begin_date:self.end_date]
                 return subper            
             except ValueError as Verr:
-                print("Data desconhecida: " + str(Verr))                
-
+                print("Unknown date: " + str(Verr))                
                     
         def create_acc_subper(self):
+            '''        
+            Returns
+            -------
+            acc_subper : Pandas DataFrame
+                DESCRIPTION. Returns a DataFrame containing daily
+                             values, index rate and accmulated rate
+                             to the selected BCB code.
+            '''
             if self.acc:
-                df = self.create_subper().copy()
-                df['indice'] = ((df.iloc[:] / 100) + 1)
-                df['indice_acc'] = df['indice'].cumprod()                
-                return df
-
+                acc_subper = self.create_subper().copy()
+                acc_subper['indice'] = ((acc_subper.iloc[:] / 100) + 1)
+                acc_subper['indice_acc'] = acc_subper['indice'].cumprod()                
+                return acc_subper
 
         def get_acc_return_tax(self):
+            '''
+            Returns
+            -------
+            numpy.float64
+                DESCRIPTION. Returns the accmulated rate as percetual
+                             to selected BCB code and subperiod.
+            '''
             return round(((self.create_acc_subper().iloc[-1][2])-1)*100, 4)
-        
-        
-        def group_by_subper(self, tipo_per = 'M'):
-            df = self.create_acc_subper().copy()
-            df = df.iloc[df.reset_index().groupby(df.index.to_period(tipo_per))['data'].idxmax()]
-            df['indice_periodo'] = (df['indice_acc'] / df['indice_acc'].shift(1))    
-            df['indice_periodo'][0] =  df['indice_acc'][0]
-            return df
+              
+        def group_by_subper(self, period_type = 'M'):
+            '''
+            Parameters
+            ----------
+            period_type : TYPE, optional
+                DESCRIPTION. The default is 'M'.
+
+            Returns
+            -------
+            by_subper : Pandas DataFrame
+                DESCRIPTION. Returns the selected subperiod grouped 
+                by some pandas offset strings (see 
+                https://pandas.pydata.org/docs/user_guide/timeseries.html#timeseries-offset-aliases), 
+                as long as it makes sense.
+
+            '''
+            by_subper = self.create_acc_subper().copy()
+            by_subper = by_subper.iloc[by_subper.reset_index().groupby(by_subper.index.to_period(period_type))['data'].idxmax()]
+            by_subper['indice_periodo'] = (by_subper['indice_acc'] / by_subper['indice_acc'].shift(1))    
+            by_subper['indice_periodo'][0] =  by_subper['indice_acc'][0]
+            return by_subper
         
         
