@@ -1,22 +1,25 @@
-Projeto: TaxasBCB
+Project: BCB Rates
 
-Data_criacao: 06.10.2021
+Date_creation: 2021.10.06
 
-Ojetivo: criar uma classe python que permita obter os principais indices disponibilizados
-pelo Banco Central do Brasil (Selic, CDI, IPCA e outros) e metodos que nos permitam obter
-informacoes a partir dos mesmos.
+Objective: create a python class that allows you to obtain the main interest 
+rates available by the Central Bank of Brazil (Selic, CDI, IPCA and others) and 
+methods that allow us to obtain information from them.
 
-09.10.2021
--criado repostitorio no github
+2021.10.09
+-created repository on github
 
-10.10.2021
--modulo TaxasBCB transformado em uma classe
--criado modulo teste separado do modulo TaxasBCB
+2021.10.10
+-BCB Rates module transformed into a class
+-Created a test module separate from the BCB Rates module
 
-11.10.2021
--criado branch Revisao01
--classe TaxaxBcb completamente redesenhada
+2021.10.11
+-created Revision01 branch
+-Completely redesigned BcbTables class
 
-30.10.2021
--refatoracao completa do modulo (nomes de variaveis, funcoes, classes, etc)
--inclusao de documentacao inicial
+2021.10.30
+-complete module refactoring (variable names, functions, classes, etc.)
+-Inclusion of initial documentation
+
+2021-10-31
+-documentation expanded

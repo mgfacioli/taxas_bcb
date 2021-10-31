@@ -15,48 +15,81 @@ __version__ = "0.0.1"
 
 
 ##############################################################################
-# importando modulos
+# modules
 import pandas as pd
 
 
 ##############################################################################
-# definindo funcoes do projeto
+# project classes
 
 class BcbTables(object):
     """
+    Attributes
+    ----------
+    url : 
+        The URL string to Brazilian Central Bank data api.
+        The default is 'http://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json'
+        where '11' is the code to CDI (Interbank Deposit Certificate) table.
+    bcb_table_code : integer, optional
+        The code of the desired table (see https://www.bcb.gov.br/estatisticas/indecoreestruturacao
+        for a complete list.)
+        Some examples:
+            11 - CDI (Interbank Deposit Certificate)
+            12 - Selic (Brazil economy's basic interest rate)
+            188 - INPC (National consumer price index)
+            433 - IPCA (Broad National Consumer Price Index).
+    
+    Methods
+    -------
+    get_subperiod (begin_date=None, end_date=None, acc = False)
+        Creates an object instance that contains a subperiod of the selected  
+        table.    
     """
     def __init__(self, 
                  url = 'http://api.bcb.gov.br/dados/serie/bcdata.sgs.{}/dados?formato=json', 
                  bcb_table_code = 11):
-            self.url = url.format(bcb_table_code)
-            self.bcb_table_code = str(bcb_table_code)         
-            try:
-                self.table = pd.read_json(self.url)
-                self.table['data'] = pd.to_datetime(self.table['data'], dayfirst=True)
-                self.table.set_index('data', inplace=True)
-            except:
-                print(f"Table code {self.bcb_table_code} not found.") 
+        """
+        Parameters
+        ----------
+        url : 
+            The URL string to Brazilian Central Bank data api.
+            The default is 'http://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json'
+            where '11' is the code to CDI (Interbank Deposit Certificate) table.
+        bcb_table_code : integer, optional
+            The code of the desired table (see https://www.bcb.gov.br/estatisticas/indecoreestruturacao
+            for a complete list.)
+        """
+        self.url = url.format(bcb_table_code)
+        self.bcb_table_code = str(bcb_table_code)         
+        try:
+            self.table = pd.read_json(self.url)
+            self.table['data'] = pd.to_datetime(self.table['data'], dayfirst=True)
+            self.table.set_index('data', inplace=True)
+        except:
+            print(f"Table code {self.bcb_table_code} not found.") 
                 
     def get_subperiod(self, begin_date=None, end_date=None, acc = False):
-        '''
+        """Creates an object instance that contains a subperiod of the selected  
+            table in the creation of BcbTables instance, starting with 
+            begin_date and ending with end_date.
+
         Parameters
         ----------
         begin_date : date, optional
-            DESCRIPTION. Start date of the desired subperiod. 
-                         The default is None.
+            Start date of the desired subperiod. 
+            The default is None.
         end_date : date, optional
-            DESCRIPTION. End date of the desired subperiod.
-                         The default is None.
+            End date of the desired subperiod.
+            The default is None.
         acc : boolean, optional
-            DESCRIPTION. Defines whether or not the subperiod can be accumulated. 
-                         The default is False.
+            Defines whether or not the subperiod can be accumulated. 
+            The default is False.
 
         Returns
         -------
         Pandas list
-            DESCRIPTION. Create an object with a selected subperiod
-
-        '''
+            Create an object with a selected subperiod
+        """
         return self.SubPeriod(self, begin_date, end_date, acc)
 
     
@@ -75,7 +108,7 @@ class BcbTables(object):
             -------
             subper : Pandas DataFrame
                 DESCRIPTION. Returns a DataFrame containing the daily 
-                             values for the selected BCB code.
+                             values for the selected BCB table.
             '''
             try:
                 if self.end_date == None:
@@ -99,7 +132,7 @@ class BcbTables(object):
             acc_subper : Pandas DataFrame
                 DESCRIPTION. Returns a DataFrame containing daily
                              values, index rate and accmulated rate
-                             to the selected BCB code.
+                             to the selected BCB table.
             '''
             if self.acc:
                 acc_subper = self.create_subper().copy()
@@ -113,16 +146,21 @@ class BcbTables(object):
             -------
             numpy.float64
                 DESCRIPTION. Returns the accmulated rate as percetual
-                             to selected BCB code and subperiod.
+                             to selected BCB table and subperiod.
             '''
-            return round(((self.create_acc_subper().iloc[-1][2])-1)*100, 4)
+            return_tax = round(((self.create_acc_subper().iloc[-1][2])-1)*100, 4)
+            return print(f'{return_tax}%')
               
         def group_by_subper(self, period_type = 'M'):
             '''
             Parameters
             ----------
-            period_type : TYPE, optional
-                DESCRIPTION. The default is 'M'.
+            period_type : string, optional
+                DESCRIPTION. The Pandas offset string to group the subperiod. 
+                             The default is 'M'.
+                             Examples:
+                                M = Group by Months.
+                                Y = Group by Year.
 
             Returns
             -------
